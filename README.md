@@ -1,148 +1,77 @@
-# 🧪 Proofy.ai — The Advanced Neural Forensic Suite
+# 🧪 Proofy.ai — Easy Deepfake & AI Checker
 
-Proofy is a next-generation Forensic Truth Verification platform designed for the age of Neural Synthesis. By utilizing state-of-the-art Generative AI, Proofy interrogates digital artifacts to verify authenticity across Video, Audio, Text, and Code.
+Proofy is a simple tool to help you find out if a video, audio clip, or text was made by AI. It helps you check if something is real or fake in just a few seconds.
 
-![Forensic Analysis](https://img.shields.io/badge/Engine-Neural%20Forensics-blueviolet?style=for-the-badge)
-![AI-Powered](https://img.shields.io/badge/Cognition-Gemini%202.5%20Flash-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Security-Technical%20Grade-green?style=for-the-badge)
-![Deployment](https://img.shields.io/badge/Deployment-Edge%20Optimized-orange?style=for-the-badge)
-
----
-
-## 🏛 The Professional Forensic Platform
-
-Proofy is engineered for **Deeper Inspection** and professional-grade verification. It moves beyond simple binary classification to provide a comprehensive forensic environment for investigators and analysts.
-
-### **Core Inspection Capabilities**
-- **Full-Spectrum Cloud Interrogation**: High-fidelity analysis for Video, Image, Audio, and Text files.
-- **Timestamp-Level Flagging**: The engine generates specific "temporal markers" (e.g., `00:15 - Warping Detected`) to pinpoint exactly where manipulation occurs.
-- **Biometric Anomaly Mapping**: Detects facial warping, skin-tone flickering, and lighting inconsistencies that are mathematically impossible in natural footage.
-- **Persistent Confidence Scoring**: Every result is calculated with a high-granularity confidence score (0-100%), allowing for reliable risk assessment.
+![Easy Check](https://img.shields.io/badge/Check-Quick%20%26%20Simple-brightgreen?style=for-the-badge)
+![AI-Powered](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue?style=for-the-badge)
+![Fast](https://img.shields.io/badge/Speed-Fast%20Processing-orange?style=for-the-badge)
 
 ---
 
-## 🏗 High-Level Architecture: "Direct-to-Cognition"
+## 👋 What does Proofy do?
 
-Proofy utilizes a unique **Direct-to-Cognition** architecture. Unlike traditional web apps that proxy AI requests through a bottlenecking backend, Proofy integrates the Gemini SDK directly into the client-side execution loop.
+Proofy helps you spot things that aren't real. Whether it's a fake video of someone talking, a robot voice, or a news story that sounds suspicious, Proofy checks it for you.
 
-### **The Payload Advantage**
-By bypassing the standard **4.5MB Vercel Serverless Payload Limit**, Proofy can analyze:
-- **High-Definition Video**: Up to 40MB+ clips analyzed in a single pass.
-- **Project Archives**: Entire ZIP files interrogated for structural integrity.
-- **Raw Audio**: Uncompressed wav files for acoustic fingerprinting.
+### **How it works (The simple version)**
+1.  **Upload**: Put your video, audio, or text into the app.
+2.  **AI Scan**: Our AI looks at every detail very closely.
+3.  **Result**: You get a score telling you how likely it is to be a fake.
 
-```mermaid
-graph LR
-    User([User]) -->|Large Media Upload| App[Proofy Frontend]
-    App -->|Secure SDK Context| AI[Gemini 2.5 Flash]
-    AI -->|Parallel Frame Processing| Logic{Neural Logic}
-    Logic -->|Structured JSON| Result[Forensic Dashboard]
-    Result -->|Validation| Certificate[Technical Forensic Certificate]
+---
+
+## 📽 Checking Videos (Deepfakes)
+
+When you upload a video, our AI doesn't just look at the picture—it watches how things move.
+
+-   **Faces & Lips**: It checks if the lips match the words perfectly. AI often gets this slightly wrong.
+-   **Warping**: It looks for weird "glitches" or "melting" effects that happen in AI videos.
+-   **Lighting**: It checks if shadows and light look natural.
+-   **Timestamps**: If something is fake, Proofy tells you exactly *when* in the video it saw the problem (e.g., "AI detected at 0:12").
+
+---
+
+## 🎙 Checking Audio & Voices
+
+Spotting fake "clone" voices is easy for Proofy.
+
+-   **Robot Sounds**: It listens for "metallic" or robotic tones that humans don't have.
+-   **Breathing**: It checks for natural breathing and pauses. Fakes often forget to "breathe."
+-   **Voice Pacing**: It listens to the rhythm of the speech to see if it sounds like a real person.
+
+---
+
+## 🗞 Checking Text & Facts
+
+Not sure if a story is true or if a bot wrote it? Proofy can help.
+
+-   **AI Writer Detection**: It finds patterns that robots use when they write.
+-   **Fact-Checking**: The AI goes online to search and see if claims are supported by real news sources.
+-   **Sources**: It gives you links to real websites so you can double-check the facts yourself.
+
+---
+
+## 🚀 Main Features
+
+-   **Big Files**: You can upload long videos and large files without any issues.
+-   **Easy Reports**: Get a clear "Real" or "Fake" answer with a simple score (0-100%).
+-   **Project Scanner**: You can even upload a ZIP folder of a software project to see what tech it uses.
+
+---
+
+## 🛠 How to Use It
+
+### **Setting it up**
+If you want to run this yourself, just add your API key to a file called `.env`:
+```sh
+VITE_API_KEY=your_key_here
 ```
 
----
-
-## 📽 Neural Video Forensic Analysis (Deep Dive)
-
-Proofy does not simply "look" at pixels; it performs a **Frame-by-Frame Temporal Interrogation**. It is designed to distinguish between **Real-World Noise** (compression artifacts, low light) and **Synthetic Failures** (AI warping).
-
-### **The Technical Interrogation Flow**
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant P as Proofy Engine
-    participant G as Gemini 2.5 Flash
-    U->>P: Provides High-Res Video
-    P->>G: Injects Forensic System Instructions
-    Note over G: Phase 1: Temporal Consistency
-    G->>G: Scan for "Morphing" or "Flicker" artifacts
-    Note over G: Phase 2: Biometric Sync
-    G->>G: Verify Lip Movement vs Facial Micro-muscles
-    Note over G: Phase 3: Physics & Lighting
-    G->>G: Audit Shadow Casting & Reflection Logic
-    G-->>P: Generate 4-Pillar JSON Report
-    P->>U: Display Heatmap & Scoring
-```
-
-### **The Four Pillars of Video Forensics**
-1.  **Integrity**: Distinguishes between standard H.264 compression blocks and AI-generated pixel-bleeding.
-2.  **Consistency**: Analyzes lighting physics across frames to see if shadows move in a physically consistent vector.
-3.  **AI Patterns**: Searches for "Neural Signatures" common in diffusion-based models (warping edges).
-4.  **Temporal Logic**: Verifies that motion follows a continuous path without "teleporting" frames.
-
-### **Advanced Forensic Indicators**
-Proofy scans for a series of high-level forensic markers:
-- **Lighting & Shadow Entropy**: Detects if shadows align with the primary light source or if they exhibit "impossible" diffusion found in AI renders.
-- **Facial Warping (Mesh Integrity)**: Scans the underlying "neural mesh" of a face for split-second warping or deforming.
-- **Motion Anomaly Detection**: Identifies "floating" objects or physics-defying movement vectors.
-- **Temporal Artifacting**: Hunting for the "pulse" of AI generation—periodic flickering that real cameras don't produce.
+### **Installation**
+1.  Run `npm install`
+2.  Run `npm run dev`
+3.  Open the website in your browser!
 
 ---
 
-## 🎙 Acoustic Forensic Analysis
-
-For audio, Proofy specializes in detecting **Artificial Voice Cloning** and **Synthetic Speech (TTS)**.
-
-### **Technical Indicators for Audio Verification**
-- **Phase Inconsistency**: Detecting "metallic" tints often found in early-stage voice clones.
-- **Acoustic Fingerprinting**: Real humans have imperfect articulation and varied room tone; AI often has "perfectly consistent" pitch.
-- **Natural Respiration**: Scanning for natural breath patterns which are often missing or "floating" in synthetic audio.
-
----
-
-## 🗞 Truth Interrogator (Text & Claims)
-
-The Truth Interrogator goes beyond simple sentiment analysis; it acts as a **Digital Fact-Checker**.
-
-- **AI Content Detection**: Analyzes linguistic markers, perplexity, and burstiness to detect text generated by Large Language Models.
-- **Grounded Fact-Checking**: Performs multiple "Search Queries" in the background to verify claims against live, reputable sources.
-- **Source Verification**: Provides a list of verified URLs for every factual claim made in the text.
-
----
-
-## 📦 ZIP Archive Architect
-
-Analyze the skeleton of a software project in seconds. 
-- **Stack Discovery**: Tells you exactly what technologies a project is built with.
-- **Structural Audit**: Scans for "Red Flag" structures (unprotected keys, missing files, suspicious scripts).
-- **Security Mapping**: Provides actionable security notes based on the project's file hierarchy.
-
----
-
-## 🛠 Advanced Tech Stack
-
-| Technology | Role | Version |
-| :--- | :--- | :--- |
-| **react** | UI Framework (High Performance) | `^19.2.4` |
-| **@google/genai** | Direct Neural SDK Integration | `^1.40.0` |
-| **framer-motion** | Smooth Dashboard Micro-animations | `11.11.17` |
-| **three.js** | Neural Network Background Visuals | `0.170.0` |
-| **lucide-react** | Clean Forensic Iconography | `0.460.0` |
-| **Vite** | Blazing Fast Build Tooling | `^7.3.1` |
-
----
-
-## ⚙️ Setup & Deployment
-
-### **1. Environment Configuration**
-Create a `.env` file in the root directory:
-```bash
-VITE_API_KEY=your_gemini_api_key_here
-```
-
-### **2. Installation & Run**
-```bash
-npm install
-npm run dev
-```
-
-### **3. Vercel Hosting**
-Proofy is pre-configured for Vercel. Simply push to your repository and ensure your `VITE_API_KEY` is added to the Environment Variables in your Vercel project settings.
-
----
-
-## 📄 License & Safety
-Proofy is a technical-grade tool. It is designed to **minimize false positives** by biasing towards "REAL" verdicts unless undeniable temporal or acoustic evidence of AI manipulation is detected.
-
-> [!IMPORTANT]
-> Use this tool as a supplement to professional human forensics. AI detection is a probabilistic science.
+## 📄 Final Note
+Proofy is a great helper, but always use your own common sense too. AI is smart, but human eyes are pretty good at spotting fakes too!
