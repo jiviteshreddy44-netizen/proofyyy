@@ -27,27 +27,22 @@ const safeInvoke = async (model: string, contents: any, config: any = {}) => {
     body: JSON.stringify({ model, contents, config })
   });
 
+  const responseText = await response.text();
+
   if (!response.ok) {
-    if (response.status === 413) {
+    if (response.status === 413 || responseText.includes("Request Entity Too Large")) {
       throw new Error("FILE_TOO_LARGE: The file is too large for the forensic engine. Please use a smaller clip or a lower resolution (max ~4MB).");
     }
 
-    let errorMsg = 'Backend failed';
     try {
-      const errorData = await response.json();
-      errorMsg = errorData.error || errorMsg;
+      const errorData = JSON.parse(responseText);
+      throw new Error(errorData.error || 'Backend failed');
     } catch (e) {
-      // Handle cases where the server returns plain text instead of JSON
-      const text = await response.text();
-      if (text.includes("Request Entity Too Large")) {
-        throw new Error("FILE_TOO_LARGE: The file is too large (max ~4MB after encryption).");
-      }
-      errorMsg = text || errorMsg;
+      throw new Error(responseText || 'Backend failed');
     }
-    throw new Error(errorMsg);
   }
 
-  return await response.json();
+  return JSON.parse(responseText);
 };
 
 export const generateForensicCertificate = async (result: AnalysisResult): Promise<string> => {
