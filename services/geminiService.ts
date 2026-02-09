@@ -65,10 +65,13 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
   while (attempts < maxAttempts) {
     const ai = getAI();
     try {
-      // Force use of 2.0 Flash as it's confirmed available
-      const modelToUse = primaryModel === "gemini-1.5-flash" || primaryModel === "gemini-3-flash-preview"
-        ? "gemini-2.0-flash"
-        : primaryModel;
+      // Prioritize 2.5 Flash as requested, then 2.0 Flash
+      const modelToUse =
+        primaryModel === "gemini-1.5-flash" ||
+          primaryModel === "gemini-2.0-flash" ||
+          primaryModel === "gemini-3-flash-preview"
+          ? "gemini-2.5-flash"
+          : primaryModel;
 
       const result = await ai.models.generateContent({
         model: modelToUse,
@@ -79,21 +82,23 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
     } catch (err: any) {
       const errorMsg = err.message || JSON.stringify(err);
 
-      const isQuotaError =
+      const isQuotaOrNetworkError =
         errorMsg.includes("429") ||
         errorMsg.includes("quota") ||
         errorMsg.includes("exhausted") ||
         errorMsg.includes("Limit reached") ||
         errorMsg.includes("System Busy") ||
-        errorMsg.includes("Cooling Down");
+        errorMsg.includes("Cooling Down") ||
+        errorMsg.includes("fetch") ||
+        err instanceof TypeError;
 
-      if (isQuotaError && KeyManager.rotate()) {
+      if (isQuotaOrNetworkError && KeyManager.rotate()) {
         attempts++;
-        console.warn(`Quota/Rate limit reached. Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
+        console.warn(`Network or Quota error (${errorMsg}). Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
         continue;
       }
 
-      if (isQuotaError || errorMsg.includes("404")) {
+      if (isQuotaOrNetworkError || errorMsg.includes("404")) {
         console.warn(`Neural Engine issue (${primaryModel}). Switching to Safe Mode (${fallbackModel})...`);
         const result = await ai.models.generateContent({
           model: fallbackModel,
@@ -271,7 +276,7 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
 export const startAssistantChat = () => {
   const ai = getAI();
   return ai.chats.create({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     config: {
       systemInstruction: "You are a world-class forensic assistant. You help users understand deepfake detection, text analysis, and source verification. Use Google Search for up-to-date facts.",
       tools: [{ googleSearch: {} }]

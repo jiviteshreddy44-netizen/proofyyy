@@ -40,7 +40,7 @@ export async function analyzeZipStructure(files: ZipFileEntry[]): Promise<ZipAna
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: `Analyze this list of files from a ZIP archive and provide a technical summary of what this project/package likely is.
         
         Files:
@@ -70,15 +70,17 @@ export async function analyzeZipStructure(files: ZipFileEntry[]): Promise<ZipAna
       return JSON.parse(response.text || '{}') as ZipAnalysis;
     } catch (err: any) {
       const errorMsg = err.message || JSON.stringify(err);
-      const isQuotaError =
+      const isQuotaOrNetworkError =
         errorMsg.includes("429") ||
         errorMsg.includes("quota") ||
         errorMsg.includes("exhausted") ||
         errorMsg.includes("Limit reached") ||
         errorMsg.includes("System Busy") ||
-        errorMsg.includes("Cooling Down");
+        errorMsg.includes("Cooling Down") ||
+        errorMsg.includes("fetch") ||
+        err instanceof TypeError;
 
-      if (isQuotaError && KeyManager.rotate()) {
+      if (isQuotaOrNetworkError && KeyManager.rotate()) {
         attempts++;
         continue;
       }
