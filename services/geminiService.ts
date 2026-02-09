@@ -1,4 +1,5 @@
 
+import { GoogleGenAI } from "@google/genai";
 import { AnalysisResult, Verdict, TextAnalysisResult } from "../types.ts";
 
 /**
@@ -18,31 +19,92 @@ const extractJson = (text: string) => {
 };
 
 /**
- * Resilient wrapper that calls the server-side backend.
+ * Manages rotation across multiple Gemini API keys.
  */
-const safeInvoke = async (model: string, contents: any, config: any = {}) => {
-  const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, contents, config })
-  });
+class KeyManager {
+  private static keys: string[] = (process.env.GEMINI_KEYS || process.env.API_KEY || "").split(',').filter(k => k.trim());
+  private static currentIndex = 0;
 
-  const responseText = await response.text();
-
-  if (!response.ok) {
-    if (response.status === 413 || responseText.includes("Request Entity Too Large")) {
-      throw new Error("FILE_TOO_LARGE: The file is too large for the forensic engine. Please use a smaller clip or a lower resolution (max ~4MB).");
-    }
-
-    try {
-      const errorData = JSON.parse(responseText);
-      throw new Error(errorData.error || 'Backend failed');
-    } catch (e) {
-      throw new Error(responseText || 'Backend failed');
-    }
+  static getCurrentKey() {
+    return this.keys[this.currentIndex];
   }
 
-  return JSON.parse(responseText);
+  static rotate() {
+    if (this.keys.length > 1) {
+      this.currentIndex = (this.currentIndex + 1) % this.keys.length;
+      console.warn(`Rotating to API Key Index: ${this.currentIndex}`);
+      return true;
+    }
+    return false;
+  }
+
+  static getKeyCount() {
+    return this.keys.length;
+  }
+}
+
+/**
+ * Factory function to ensure GoogleGenAI is instantiated using the currently active rotated key.
+ */
+const getAI = () => {
+  const apiKey = KeyManager.getCurrentKey();
+  if (!apiKey) {
+    throw new Error("API_KEY_MISSING");
+  }
+  return new GoogleGenAI({ apiKey });
+};
+
+/**
+ * Resilient wrapper that falls back to a stable model or rotates API keys if the primary model hits quota.
+ */
+const safeInvoke = async (primaryModel: string, contents: any, config: any = {}) => {
+  let attempts = 0;
+  const maxAttempts = KeyManager.getKeyCount();
+  const fallbackModel = "gemini-flash-latest";
+
+  while (attempts < maxAttempts) {
+    const ai = getAI();
+    try {
+      const modelToUse =
+        primaryModel === "gemini-1.5-flash" ||
+          primaryModel === "gemini-2.0-flash"
+          ? "gemini-2.5-flash"
+          : primaryModel;
+
+      const result = await ai.models.generateContent({
+        model: modelToUse,
+        contents,
+        config
+      });
+      return { response: result.response, isSafeMode: false };
+    } catch (err: any) {
+      const errorMsg = err.message || JSON.stringify(err);
+
+      const isQuotaOrNetworkError =
+        errorMsg.includes("429") ||
+        errorMsg.includes("quota") ||
+        errorMsg.includes("exhausted") ||
+        errorMsg.includes("Limit reached") ||
+        errorMsg.includes("System Busy") ||
+        errorMsg.includes("Cooling Down");
+
+      if (isQuotaOrNetworkError && KeyManager.rotate()) {
+        attempts++;
+        continue;
+      }
+
+      if (isQuotaOrNetworkError || errorMsg.includes("404")) {
+        const result = await ai.models.generateContent({
+          model: fallbackModel,
+          contents,
+          config
+        });
+        return { response: result.response, isSafeMode: true };
+      }
+      throw err;
+    }
+  }
+  throw new Error("All API keys have exhausted their quota.");
 };
 
 export const generateForensicCertificate = async (result: AnalysisResult): Promise<string> => {
@@ -51,7 +113,7 @@ export const generateForensicCertificate = async (result: AnalysisResult): Promi
     AI Probability: ${result.deepfakeProbability}%.
     Include detailed findings: ${JSON.stringify(result.explanations)}.
     Format with professional headers and ASCII borders.`);
-  return response.text || "Failed to generate text report.";
+  return response.text() || "Failed to generate text report.";
 };
 
 export const reverseSignalGrounding = async (file: File): Promise<any> => {
@@ -71,21 +133,15 @@ export const reverseSignalGrounding = async (file: File): Promise<any> => {
     tools: [{ googleSearch: {} }]
   });
 
-  const data = extractJson(response.text || "{}");
-  const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks
-    ?.filter(chunk => (chunk as any).web)
-    .map(chunk => ({ title: (chunk as any).web?.title || "Verified Source", url: (chunk as any).web?.uri || "" })) || [];
+  const data = extractJson(response.text() || "{}");
+  const sources = (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks
+    ?.filter((chunk: any) => chunk.web)
+    .map((chunk: any) => ({ title: chunk.web?.title || "Verified Source", url: chunk.web?.uri || "" })) || [];
 
   return { ...data, sources, isSafeMode };
 };
 
 export const analyzeMedia = async (file: File, metadata: any): Promise<AnalysisResult> => {
-  // Vercel has a 4.5MB payload limit. 
-  // Base64 encoding adds ~33% overhead, so a 3.2MB file becomes ~4.3MB.
-  if (file.size > 3.8 * 1024 * 1024) {
-    throw new Error("FILE_TOO_LARGE: This file is too large to process. Please upload a clip under 4MB.");
-  }
-
   const base64Data = await new Promise<string>((resolve) => {
     const reader = new FileReader();
     reader.onload = () => resolve((reader.result as string).split(',')[1]);
@@ -94,7 +150,6 @@ export const analyzeMedia = async (file: File, metadata: any): Promise<AnalysisR
 
   const isVideo = file.type.includes('video');
 
-  // Upgraded to Pro model for better reasoning and reduced false positives
   const { response, isSafeMode } = await safeInvoke("gemini-1.5-flash", {
     parts: [
       { inlineData: { mimeType: file.type, data: base64Data } },
@@ -139,18 +194,14 @@ export const analyzeMedia = async (file: File, metadata: any): Promise<AnalysisR
     ]
   }, {
     responseMimeType: "application/json",
-    // System instruction enforces a skeptical stance on "Fake" verdicts unless proof is absolute
     systemInstruction: "You are a precise digital forensics engine. You prioritize minimizing false positives. You understand that real world video has noise, compression, and bad lighting. You ONLY flag content as FAKE if you detect temporal inconsistency (warping, morphing, flickering) that is impossible in physical reality."
   });
 
-  const data = extractJson(response.text || "{}");
+  const data = extractJson(response.text() || "{}");
 
   let finalVerdict = Verdict.LIKELY_FAKE;
   const prob = data.deepfakeProbability ?? 50;
 
-  // STRICTER Thresholds:
-  // If probability is below 50%, force verdict to REAL.
-  // This prevents "Uncertain" results from scaring users about real videos.
   if (prob < 50) {
     finalVerdict = Verdict.REAL;
   } else {
@@ -190,7 +241,7 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
     tools: isFactCheck ? [{ googleSearch: {} }] : []
   });
 
-  const result = extractJson(response.text || "{}");
+  const result = extractJson(response.text() || "{}");
   return {
     likelihoodRange: result.aiProbability ? `${result.aiProbability}%` : "0%",
     aiProbability: result.aiProbability ?? 0,
@@ -202,28 +253,24 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
     summary: result.summary || "Analysis complete.",
     claims: result.claims || [],
     linguisticMarkers: result.linguisticMarkers || [],
-    sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks
-      ?.filter(chunk => (chunk as any).web).map(chunk => ({
-        title: (chunk as any).web?.title || "Source",
-        url: (chunk as any).web?.uri || ""
+    sources: (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks
+      ?.filter((chunk: any) => chunk.web).map((chunk: any) => ({
+        title: chunk.web?.title || "Source",
+        url: chunk.web?.uri || ""
       })) || [],
     isSafeMode
   };
 };
 
 export const startAssistantChat = () => {
-  return {
-    sendMessage: async (message: string, history: any[] = []) => {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history })
-      });
-      if (!response.ok) throw new Error('Chat failed');
-      const data = await response.json();
-      return { response: { text: () => data.response } };
+  const ai = getAI();
+  return ai.chats.create({
+    model: 'gemini-2.5-flash',
+    config: {
+      systemInstruction: "You are a world-class forensic assistant. You help users understand deepfake detection, text analysis, and source verification. Use Google Search for up-to-date facts.",
+      tools: [{ googleSearch: {} }]
     }
-  };
+  });
 };
 
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
@@ -240,5 +287,5 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     ]
   });
 
-  return response.text || "";
+  return response.text() || "";
 };
