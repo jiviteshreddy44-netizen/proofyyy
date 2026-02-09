@@ -13,15 +13,38 @@ Proofy is a simple tool to help you find out if a video, audio clip, or text was
 Proofy helps you spot things that aren't real. Whether it's a fake video of someone talking, a robot voice, or a news story that sounds suspicious, Proofy checks it for you.
 
 ### **How it works (The simple version)**
-1.  **Upload**: Put your video, audio, or text into the app.
-2.  **AI Scan**: Our AI looks at every detail very closely.
-3.  **Result**: You get a score telling you how likely it is to be a fake.
+```mermaid
+graph LR
+    User([User]) -->|Upload Media| App[Proofy Frontend]
+    App -->|Secure SDK Call| AI[Gemini Neural Engine]
+    AI -->|Temporal/Acoustic Analysis| Logic{Internal Logic}
+    Logic -->|Structured JSON| Result[Forensic Dashboard]
+    Result -->|Report| Certificate[ASCII Forensic Certificate]
+```
 
 ---
 
 ## 📽 Checking Videos (Deepfakes)
 
 When you upload a video, our AI doesn't just look at the picture—it watches how things move.
+
+### **Video Analysis Step-by-Step**
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant P as Proofy Engine
+    participant G as Gemini 2.5 Flash
+    U->>P: Provides High-Res Video
+    P->>G: Injects Forensic System Instructions
+    Note over G: Phase 1: Temporal Consistency
+    G->>G: Scan for "Morphing" or "Flicker" artifacts
+    Note over G: Phase 2: Biometric Sync
+    G->>G: Verify Lip Movement vs Facial Micro-muscles
+    Note over G: Phase 3: Physics & Lighting
+    G->>G: Audit Shadow Casting & Reflection Logic
+    G-->>P: Generate 4-Pillar JSON Report
+    P->>U: Display Heatmap & Scoring
+```
 
 -   **Faces & Lips**: It checks if the lips match the words perfectly. AI often gets this slightly wrong.
 -   **Warping**: It looks for weird "glitches" or "melting" effects that happen in AI videos.
@@ -33,6 +56,17 @@ When you upload a video, our AI doesn't just look at the picture—it watches ho
 ## 🎙 Checking Audio & Voices
 
 Spotting fake "clone" voices is easy for Proofy.
+
+### **Audio Analysis Flow**
+```mermaid
+graph TD
+    A[Audio Input] --> B[Acoustic Interrogation]
+    B --> C{Signal Logic}
+    C -->|Natural Indicator| D[Breaths, Imperfect Articulation, Room Tone]
+    C -->|Synthetic Indicator| E[Phase Issues, Metallic Tint, Perfect Pitch Alignment]
+    D --> F[Verdict: AUTHENTIC]
+    E --> G[Verdict: SYNTHETIC/CLONED]
+```
 
 -   **Robot Sounds**: It listens for "metallic" or robotic tones that humans don't have.
 -   **Breathing**: It checks for natural breathing and pauses. Fakes often forget to "breathe."
