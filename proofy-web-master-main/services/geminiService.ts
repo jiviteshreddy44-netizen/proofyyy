@@ -78,33 +78,43 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
       });
       return { response: result.response, isSafeMode: false };
     } catch (err: any) {
-      const errorMsg = err.message || JSON.stringify(err);
+      const errorMsg = (err.message || "").toLowerCase() + JSON.stringify(err).toLowerCase();
 
-      const isQuotaOrNetworkError =
+      const isQuotaError =
         errorMsg.includes("429") ||
         errorMsg.includes("quota") ||
+        errorMsg.includes("limit reached") ||
+        errorMsg.includes("system busy") ||
+        errorMsg.includes("cooling down") ||
         errorMsg.includes("exhausted") ||
-        errorMsg.includes("Limit reached") ||
-        errorMsg.includes("System Busy") ||
-        errorMsg.includes("Cooling Down");
+        errorMsg.includes("resource_exhausted") ||
+        errorMsg.includes("too many requests");
 
-      if (isQuotaOrNetworkError && KeyManager.rotate()) {
+      if (isQuotaError && KeyManager.rotate()) {
         attempts++;
+        await new Promise(r => setTimeout(r, 500));
         continue;
       }
 
-      if (isQuotaOrNetworkError || errorMsg.includes("404")) {
-        const result = await ai.models.generateContent({
-          model: fallbackModel,
-          contents,
-          config
-        });
-        return { response: result.response, isSafeMode: true };
+      if (isQuotaError || errorMsg.includes("404") || errorMsg.includes("not found")) {
+        try {
+          const result = await ai.models.generateContent({
+            model: fallbackModel,
+            contents,
+            config
+          });
+          return { response: result.response, isSafeMode: true };
+        } catch (fallbackErr) {
+          if (KeyManager.rotate()) {
+            attempts++;
+            continue;
+          }
+        }
       }
       throw err;
     }
   }
-  throw new Error("All API keys have exhausted their quota.");
+  throw new Error("All API keys have exhausted their quota. Please try again later.");
 };
 
 export const generateForensicCertificate = async (result: AnalysisResult): Promise<string> => {
