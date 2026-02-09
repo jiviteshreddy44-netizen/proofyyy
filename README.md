@@ -4,8 +4,20 @@ Proofy is a next-generation Forensic Truth Verification platform designed for th
 
 ![Forensic Analysis](https://img.shields.io/badge/Engine-Neural%20Forensics-blueviolet?style=for-the-badge)
 ![AI-Powered](https://img.shields.io/badge/Cognition-Gemini%202.5%20Flash-blue?style=for-the-badge)
-![Security](https://img.shields.io/badge/Security-Technical%20Grade-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Security-Technical%20Grade-green?style=for-the-badge)
 ![Deployment](https://img.shields.io/badge/Deployment-Edge%20Optimized-orange?style=for-the-badge)
+
+---
+
+## 🏛 The Professional Forensic Platform
+
+Proofy is engineered for **Deeper Inspection** and professional-grade verification. It moves beyond simple binary classification to provide a comprehensive forensic environment for investigators and analysts.
+
+### **Core Inspection Capabilities**
+- **Full-Spectrum Cloud Interrogation**: High-fidelity analysis for Video, Image, Audio, and Text files.
+- **Timestamp-Level Flagging**: The engine generates specific "temporal markers" (e.g., `00:15 - Warping Detected`) to pinpoint exactly where manipulation occurs.
+- **Biometric Anomaly Mapping**: Detects facial warping, skin-tone flickering, and lighting inconsistencies that are mathematically impossible in natural footage.
+- **Persistent Confidence Scoring**: Every result is calculated with a high-granularity confidence score (0-100%), allowing for reliable risk assessment.
 
 ---
 
