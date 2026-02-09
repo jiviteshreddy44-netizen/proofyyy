@@ -68,21 +68,3 @@ graph TD
 ```
 
 ---
-
-## 🛠 How to Use It
-
-### **Setting it up**
-Add your API key to a file called `.env`:
-```sh
-VITE_API_KEY=your_key_here
-```
-
-### **Installation**
-1.  Run `npm install`
-2.  Run `npm run dev`
-3.  Open the website in your browser!
-
----
-
-## 📄 License
-Professional Verification Protocol.
