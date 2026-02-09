@@ -1,101 +1,78 @@
-# 🧪 Proofy.ai — Easy Deepfake & AI Checker
+# 🧪 Proofy.ai — Professional Media Verification
 
-Proofy is a simple tool to help you find out if a video, audio clip, or text was made by AI. It helps you check if something is real or fake in just a few seconds.
+Proofy is a simple but powerful tool for checking if videos, images, audio, and text are real or made by AI. It is built for professional use and deep inspection.
 
-![Easy Check](https://img.shields.io/badge/Check-Quick%20%26%20Simple-brightgreen?style=for-the-badge)
-![AI-Powered](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue?style=for-the-badge)
-![Fast](https://img.shields.io/badge/Speed-Fast%20Processing-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Professional%20Grade-blue?style=for-the-badge)
+![AI-Powered](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blueviolet?style=for-the-badge)
 
 ---
 
-## 👋 What does Proofy do?
+## 🏗 How it Works
 
-Proofy helps you spot things that aren't real. Whether it's a fake video of someone talking, a robot voice, or a news story that sounds suspicious, Proofy checks it for you.
+Proofy works by talking directly to advanced AI to check your files quickly and accurately.
 
-### **How it works (The simple version)**
 ```mermaid
 graph LR
     User([User]) -->|Upload Media| App[Proofy Frontend]
     App -->|Secure SDK Call| AI[Gemini Neural Engine]
-    AI -->|Temporal/Acoustic Analysis| Logic{Internal Logic}
-    Logic -->|Structured JSON| Result[Forensic Dashboard]
-    Result -->|Report| Certificate[ASCII Forensic Certificate]
+    AI -->|Deep Analysis| Logic{Checking...}
+    Logic -->|Structured Report| Result[Forensic Dashboard]
+    Result -->|Report| Certificate[Technical Certificate]
 ```
-
----
-
-## 📽 Checking Videos (Deepfakes)
-
-When you upload a video, our AI doesn't just look at the picture—it watches how things move.
-
-### **Video Analysis Step-by-Step**
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant P as Proofy Engine
-    participant G as Gemini 2.5 Flash
-    U->>P: Provides High-Res Video
-    P->>G: Injects Forensic System Instructions
-    Note over G: Phase 1: Temporal Consistency
-    G->>G: Scan for "Morphing" or "Flicker" artifacts
-    Note over G: Phase 2: Biometric Sync
-    G->>G: Verify Lip Movement vs Facial Micro-muscles
-    Note over G: Phase 3: Physics & Lighting
-    G->>G: Audit Shadow Casting & Reflection Logic
-    G-->>P: Generate 4-Pillar JSON Report
-    P->>U: Display Heatmap & Scoring
-```
-
--   **Faces & Lips**: It checks if the lips match the words perfectly. AI often gets this slightly wrong.
--   **Warping**: It looks for weird "glitches" or "melting" effects that happen in AI videos.
--   **Lighting**: It checks if shadows and light look natural.
--   **Timestamps**: If something is fake, Proofy tells you exactly *when* in the video it saw the problem (e.g., "AI detected at 0:12").
-
----
-
-## 🎙 Checking Audio & Voices
-
-Spotting fake "clone" voices is easy for Proofy.
-
-### **Audio Analysis Flow**
-```mermaid
-graph TD
-    A[Audio Input] --> B[Acoustic Interrogation]
-    B --> C{Signal Logic}
-    C -->|Natural Indicator| D[Breaths, Imperfect Articulation, Room Tone]
-    C -->|Synthetic Indicator| E[Phase Issues, Metallic Tint, Perfect Pitch Alignment]
-    D --> F[Verdict: AUTHENTIC]
-    E --> G[Verdict: SYNTHETIC/CLONED]
-```
-
--   **Robot Sounds**: It listens for "metallic" or robotic tones that humans don't have.
--   **Breathing**: It checks for natural breathing and pauses. Fakes often forget to "breathe."
--   **Voice Pacing**: It listens to the rhythm of the speech to see if it sounds like a real person.
-
----
-
-## 🗞 Checking Text & Facts
-
-Not sure if a story is true or if a bot wrote it? Proofy can help.
-
--   **AI Writer Detection**: It finds patterns that robots use when they write.
--   **Fact-Checking**: The AI goes online to search and see if claims are supported by real news sources.
--   **Sources**: It gives you links to real websites so you can double-check the facts yourself.
 
 ---
 
 ## 🚀 Main Features
 
--   **Big Files**: You can upload long videos and large files without any issues.
--   **Easy Reports**: Get a clear "Real" or "Fake" answer with a simple score (0-100%).
--   **Project Scanner**: You can even upload a ZIP folder of a software project to see what tech it uses.
+Proofy is designed with these core capabilities:
+
+-   **Full Media Uploads**: Check any video, image, audio clip, or block of text.
+-   **Deep Video Analysis**: Watches videos frame-by-frame and flags exactly when a problem happens with **timestamp-level marking** (e.g., "Melted face at 0:15").
+-   **Advanced Detection**: Finds specific problems like:
+    -   **Lighting Errors**: Shadows that don't make sense.
+    -   **Facial Warping**: Faces that "melt" or change shape unnaturally.
+    -   **Motion Anomalies**: Objects that move in impossible ways.
+    -   **AI Artifacts**: Strange "glitches" left behind by AI generators.
+-   **Saved Results**: Every check is saved with a **confidence score** so you can review it later.
+
+---
+
+## 📽 Video Checking Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant P as Proofy Engine
+    participant G as Gemini 2.5 Flash
+    U->>P: Upload Video File
+    P->>G: Start Frame-by-Frame Check
+    Note over G: AI Scanning for Errors
+    G->>G: Find Lighting & Mesh Warps
+    G->>G: Check Motion & Timestamps
+    G-->>P: Return Analysis JSON
+    P->>U: Show Flagged Moments & Scores
+```
+
+---
+
+## 🎙 Audio & Sound Checking
+
+```mermaid
+graph TD
+    A[Audio Input] --> B[Acoustic Check]
+    B --> C{AI Brain}
+    C -->|Natural Signs| D[Natural Breaths & Real Voice]
+    C -->|Fake Signs| E[Robot Tones & Metallic Echoes]
+    D --> F[Verdict: REAL]
+    E --> G[Verdict: AI CLONE]
+```
 
 ---
 
 ## 🛠 How to Use It
 
 ### **Setting it up**
-If you want to run this yourself, just add your API key to a file called `.env`:
+Add your API key to a file called `.env`:
 ```sh
 VITE_API_KEY=your_key_here
 ```
@@ -107,5 +84,5 @@ VITE_API_KEY=your_key_here
 
 ---
 
-## 📄 Final Note
-Proofy is a great helper, but always use your own common sense too. AI is smart, but human eyes are pretty good at spotting fakes too!
+## 📄 License
+Professional Verification Protocol.
