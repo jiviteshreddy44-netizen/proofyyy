@@ -60,13 +60,13 @@ const getAI = () => {
 const safeInvoke = async (primaryModel: string, contents: any, config: any = {}) => {
   let attempts = 0;
   const maxAttempts = KeyManager.getKeyCount();
-  const fallbackModel = "gemini-1.5-flash";
+  const fallbackModel = "gemini-flash-latest";
 
   while (attempts < maxAttempts) {
     const ai = getAI();
     try {
       const result = await ai.models.generateContent({
-        model: primaryModel,
+        model: primaryModel === "gemini-1.5-flash" ? "gemini-2.0-flash" : primaryModel,
         contents,
         config
       });
@@ -259,7 +259,7 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
 export const startAssistantChat = () => {
   const ai = getAI();
   return ai.chats.create({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash',
     config: {
       systemInstruction: "You are a world-class forensic assistant. You help users understand deepfake detection, text analysis, and source verification. Use Google Search for up-to-date facts.",
       tools: [{ googleSearch: {} }]

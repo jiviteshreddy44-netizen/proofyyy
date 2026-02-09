@@ -40,7 +40,7 @@ export async function analyzeZipStructure(files: ZipFileEntry[]): Promise<ZipAna
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash",
         contents: `Analyze this list of files from a ZIP archive and provide a technical summary of what this project/package likely is.
         
         Files:
