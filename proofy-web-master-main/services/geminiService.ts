@@ -1,4 +1,3 @@
-import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { AnalysisResult, Verdict, TextAnalysisResult } from "../types.ts";
 
 /**
@@ -18,98 +17,21 @@ const extractJson = (text: string) => {
 };
 
 /**
- * Manages rotation across multiple Gemini API keys.
+ * Resilient wrapper that calls the server-side backend.
  */
-class KeyManager {
-  private static keys: string[] = (process.env.GEMINI_KEYS || process.env.API_KEY || "").split(',').filter(k => k.trim());
-  private static currentIndex = 0;
+const safeInvoke = async (model: string, contents: any, config: any = {}) => {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, contents, config })
+  });
 
-  static getCurrentKey() {
-    return this.keys[this.currentIndex];
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Backend failed');
   }
 
-  static rotate() {
-    if (this.keys.length > 1) {
-      this.currentIndex = (this.currentIndex + 1) % this.keys.length;
-      console.warn(`Rotating to API Key Index: ${this.currentIndex}`);
-      return true;
-    }
-    return false;
-  }
-
-  static getKeyCount() {
-    return this.keys.length;
-  }
-}
-
-/**
- * Factory function to ensure GoogleGenAI is instantiated using the currently active rotated key.
- */
-const getAI = () => {
-  const apiKey = KeyManager.getCurrentKey();
-  if (!apiKey) {
-    throw new Error("API_KEY_MISSING");
-  }
-  return new GoogleGenAI({ apiKey });
-};
-
-/**
- * Resilient wrapper that falls back to a stable model or rotates API keys if the primary model hits quota.
- */
-const safeInvoke = async (primaryModel: string, contents: any, config: any = {}) => {
-  let attempts = 0;
-  const maxAttempts = KeyManager.getKeyCount();
-  const fallbackModel = "gemini-flash-latest";
-
-  while (attempts < maxAttempts) {
-    const ai = getAI();
-    try {
-      // Prioritize 2.5 Flash as requested, then 2.0 Flash
-      const modelToUse =
-        primaryModel === "gemini-1.5-flash" ||
-          primaryModel === "gemini-2.0-flash" ||
-          primaryModel === "gemini-3-flash-preview"
-          ? "gemini-2.5-flash"
-          : primaryModel;
-
-      const result = await ai.models.generateContent({
-        model: modelToUse,
-        contents,
-        config
-      });
-      return { response: result, isSafeMode: false };
-    } catch (err: any) {
-      const errorMsg = err.message || JSON.stringify(err);
-
-      const isQuotaOrNetworkError =
-        errorMsg.includes("429") ||
-        errorMsg.includes("quota") ||
-        errorMsg.includes("exhausted") ||
-        errorMsg.includes("Limit reached") ||
-        errorMsg.includes("System Busy") ||
-        errorMsg.includes("Cooling Down") ||
-        errorMsg.includes("fetch") ||
-        err instanceof TypeError;
-
-      if (isQuotaOrNetworkError && KeyManager.rotate()) {
-        attempts++;
-        console.warn(`Network or Quota error (${errorMsg}). Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
-        continue;
-      }
-
-      if (isQuotaOrNetworkError || errorMsg.includes("404")) {
-        console.warn(`Neural Engine issue (${primaryModel}). Switching to Safe Mode (${fallbackModel})...`);
-        const result = await ai.models.generateContent({
-          model: fallbackModel,
-          contents,
-          config
-        });
-        return { response: result, isSafeMode: true };
-      }
-      throw err;
-    }
-  }
-  throw new Error("All API keys have exhausted their quota.");
+  return await response.json();
 };
 
 export const generateForensicCertificate = async (result: AnalysisResult): Promise<string> => {
@@ -286,14 +208,18 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
 };
 
 export const startAssistantChat = () => {
-  const ai = getAI();
-  return ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: {
-      systemInstruction: "You are a world-class forensic assistant. You help users understand deepfake detection, text analysis, and source verification. Use Google Search for up-to-date facts.",
-      tools: [{ googleSearch: {} }]
+  return {
+    sendMessage: async (message: string, history: any[] = []) => {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history })
+      });
+      if (!response.ok) throw new Error('Chat failed');
+      const data = await response.json();
+      return { response: { text: () => data.response } };
     }
-  });
+  };
 };
 
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
