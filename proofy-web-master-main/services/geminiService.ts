@@ -76,7 +76,7 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
         contents,
         config
       });
-      return { response: result.response, isSafeMode: false };
+      return { response: result, isSafeMode: false };
     } catch (err: any) {
       const errorMsg = (err.message || "").toLowerCase() + JSON.stringify(err).toLowerCase();
 
@@ -103,7 +103,7 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
             contents,
             config
           });
-          return { response: result.response, isSafeMode: true };
+          return { response: result, isSafeMode: true };
         } catch (fallbackErr) {
           if (KeyManager.rotate()) {
             attempts++;
@@ -123,7 +123,7 @@ export const generateForensicCertificate = async (result: AnalysisResult): Promi
     AI Probability: ${result.deepfakeProbability}%.
     Include detailed findings: ${JSON.stringify(result.explanations)}.
     Format with professional headers and ASCII borders.`);
-  return response.text() || "Failed to generate text report.";
+  return response.text || "Failed to generate text report.";
 };
 
 export const reverseSignalGrounding = async (file: File): Promise<any> => {
@@ -143,7 +143,7 @@ export const reverseSignalGrounding = async (file: File): Promise<any> => {
     tools: [{ googleSearch: {} }]
   });
 
-  const data = extractJson(response.text() || "{}");
+  const data = extractJson(response.text || "{}");
   const sources = (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks
     ?.filter((chunk: any) => chunk.web)
     .map((chunk: any) => ({ title: chunk.web?.title || "Verified Source", url: chunk.web?.uri || "" })) || [];
@@ -207,7 +207,7 @@ export const analyzeMedia = async (file: File, metadata: any): Promise<AnalysisR
     systemInstruction: "You are a precise digital forensics engine. You prioritize minimizing false positives. You understand that real world video has noise, compression, and bad lighting. You ONLY flag content as FAKE if you detect temporal inconsistency (warping, morphing, flickering) that is impossible in physical reality."
   });
 
-  const data = extractJson(response.text() || "{}");
+  const data = extractJson(response.text || "{}");
 
   let finalVerdict = Verdict.LIKELY_FAKE;
   const prob = data.deepfakeProbability ?? 50;
@@ -251,7 +251,7 @@ export const analyzeText = async (text: string, mode: 'AI_DETECT' | 'FACT_CHECK'
     tools: isFactCheck ? [{ googleSearch: {} }] : []
   });
 
-  const result = extractJson(response.text() || "{}");
+  const result = extractJson(response.text || "{}");
   return {
     likelihoodRange: result.aiProbability ? `${result.aiProbability}%` : "0%",
     aiProbability: result.aiProbability ?? 0,
@@ -297,5 +297,5 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     ]
   });
 
-  return response.text() || "";
+  return response.text || "";
 };
