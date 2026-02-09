@@ -65,20 +65,32 @@ const safeInvoke = async (primaryModel: string, contents: any, config: any = {})
   while (attempts < maxAttempts) {
     const ai = getAI();
     try {
+      // Force use of 2.0 Flash as it's confirmed available
+      const modelToUse = primaryModel === "gemini-1.5-flash" || primaryModel === "gemini-3-flash-preview"
+        ? "gemini-2.0-flash"
+        : primaryModel;
+
       const result = await ai.models.generateContent({
-        model: primaryModel === "gemini-1.5-flash" ? "gemini-2.0-flash" : primaryModel,
+        model: modelToUse,
         contents,
         config
       });
       return { response: result, isSafeMode: false };
     } catch (err: any) {
       const errorMsg = err.message || JSON.stringify(err);
-      const isQuotaError = errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("exhausted");
+
+      const isQuotaError =
+        errorMsg.includes("429") ||
+        errorMsg.includes("quota") ||
+        errorMsg.includes("exhausted") ||
+        errorMsg.includes("Limit reached") ||
+        errorMsg.includes("System Busy") ||
+        errorMsg.includes("Cooling Down");
 
       if (isQuotaError && KeyManager.rotate()) {
         attempts++;
-        console.warn(`Quota reached for key. Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
-        continue; // Try again with the next key
+        console.warn(`Quota/Rate limit reached. Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
+        continue;
       }
 
       if (isQuotaError || errorMsg.includes("404")) {

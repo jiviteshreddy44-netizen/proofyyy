@@ -70,7 +70,15 @@ export async function analyzeZipStructure(files: ZipFileEntry[]): Promise<ZipAna
       return JSON.parse(response.text || '{}') as ZipAnalysis;
     } catch (err: any) {
       const errorMsg = err.message || JSON.stringify(err);
-      if ((errorMsg.includes("429") || errorMsg.includes("quota")) && KeyManager.rotate()) {
+      const isQuotaError =
+        errorMsg.includes("429") ||
+        errorMsg.includes("quota") ||
+        errorMsg.includes("exhausted") ||
+        errorMsg.includes("Limit reached") ||
+        errorMsg.includes("System Busy") ||
+        errorMsg.includes("Cooling Down");
+
+      if (isQuotaError && KeyManager.rotate()) {
         attempts++;
         continue;
       }
