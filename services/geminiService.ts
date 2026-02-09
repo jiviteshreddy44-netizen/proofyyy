@@ -19,10 +19,35 @@ const extractJson = (text: string) => {
 };
 
 /**
- * Factory function to ensure GoogleGenAI is instantiated exclusively using process.env.API_KEY.
+ * Manages rotation across multiple Gemini API keys.
+ */
+class KeyManager {
+  private static keys: string[] = (process.env.GEMINI_KEYS || process.env.API_KEY || "").split(',').filter(k => k.trim());
+  private static currentIndex = 0;
+
+  static getCurrentKey() {
+    return this.keys[this.currentIndex];
+  }
+
+  static rotate() {
+    if (this.keys.length > 1) {
+      this.currentIndex = (this.currentIndex + 1) % this.keys.length;
+      console.warn(`Rotating to API Key Index: ${this.currentIndex}`);
+      return true;
+    }
+    return false;
+  }
+
+  static getKeyCount() {
+    return this.keys.length;
+  }
+}
+
+/**
+ * Factory function to ensure GoogleGenAI is instantiated using the currently active rotated key.
  */
 const getAI = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = KeyManager.getCurrentKey();
   if (!apiKey) {
     throw new Error("API_KEY_MISSING");
   }
@@ -30,32 +55,45 @@ const getAI = () => {
 };
 
 /**
- * Resilient wrapper that falls back to a stable model if the primary model hits quota or is unavailable.
+ * Resilient wrapper that falls back to a stable model or rotates API keys if the primary model hits quota.
  */
 const safeInvoke = async (primaryModel: string, contents: any, config: any = {}) => {
-  const ai = getAI();
+  let attempts = 0;
+  const maxAttempts = KeyManager.getKeyCount();
   const fallbackModel = "gemini-1.5-flash";
 
-  try {
-    const result = await ai.models.generateContent({
-      model: primaryModel,
-      contents,
-      config
-    });
-    return { response: result, isSafeMode: false };
-  } catch (err: any) {
-    const errorMsg = err.message || JSON.stringify(err);
-    if (errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("exhausted") || errorMsg.includes("404")) {
-      console.warn(`Neural Engine issue (${primaryModel}). Switching to Safe Mode (${fallbackModel})...`);
+  while (attempts < maxAttempts) {
+    const ai = getAI();
+    try {
       const result = await ai.models.generateContent({
-        model: fallbackModel,
+        model: primaryModel,
         contents,
         config
       });
-      return { response: result, isSafeMode: true };
+      return { response: result, isSafeMode: false };
+    } catch (err: any) {
+      const errorMsg = err.message || JSON.stringify(err);
+      const isQuotaError = errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("exhausted");
+
+      if (isQuotaError && KeyManager.rotate()) {
+        attempts++;
+        console.warn(`Quota reached for key. Retrying with next key (Attempt ${attempts}/${maxAttempts})...`);
+        continue; // Try again with the next key
+      }
+
+      if (isQuotaError || errorMsg.includes("404")) {
+        console.warn(`Neural Engine issue (${primaryModel}). Switching to Safe Mode (${fallbackModel})...`);
+        const result = await ai.models.generateContent({
+          model: fallbackModel,
+          contents,
+          config
+        });
+        return { response: result, isSafeMode: true };
+      }
+      throw err;
     }
-    throw err;
   }
+  throw new Error("All API keys have exhausted their quota.");
 };
 
 export const generateForensicCertificate = async (result: AnalysisResult): Promise<string> => {
