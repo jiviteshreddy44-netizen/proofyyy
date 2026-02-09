@@ -1,113 +1,129 @@
-# 🧪 Proofy.ai — Truth Verification & Neural Forensic Suite
+# 🧪 Proofy.ai — The Advanced Neural Forensic Suite
 
-Proofy is a next-generation Forensic Truth Verification Suite. It leverages advanced Neural Engines to interrogate digital media, detect deepfakes, verify textual claims, and audit code project structures.
+Proofy is a next-generation Forensic Truth Verification platform designed for the age of Neural Synthesis. By utilizing state-of-the-art Generative AI, Proofy interrogates digital artifacts to verify authenticity across Video, Audio, Text, and Code.
 
 ![Forensic Analysis](https://img.shields.io/badge/Engine-Neural%20Forensics-blueviolet?style=for-the-badge)
-![AI-Powered](https://img.shields.io/badge/Powered%20By-Gemini%202.5%20Flash-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Security-Technical%20Grade-green?style=for-the-badge)
+![AI-Powered](https://img.shields.io/badge/Cognition-Gemini%202.5%20Flash-blue?style=for-the-badge)
+![Security](https://img.shields.io/badge/Security-Technical%20Grade-green?style=for-the-badge)
+![Deployment](https://img.shields.io/badge/Deployment-Edge%20Optimized-orange?style=for-the-badge)
 
 ---
 
-## 🏗 High-Level Architecture
+## 🏗 High-Level Architecture: "Direct-to-Cognition"
 
-Proofy uses a **Direct-to-Cognition** architecture. By utilizing the Gemini SDK directly in the browser, Proofy bypasses traditional server-side payload limits, allowing for the analysis of high-resolution, large-scale video and audio files without compression loss.
+Proofy utilizes a unique **Direct-to-Cognition** architecture. Unlike traditional web apps that proxy AI requests through a bottlenecking backend, Proofy integrates the Gemini SDK directly into the client-side execution loop.
+
+### **The Payload Advantage**
+By bypassing the standard **4.5MB Vercel Serverless Payload Limit**, Proofy can analyze:
+- **High-Definition Video**: Up to 40MB+ clips analyzed in a single pass.
+- **Project Archives**: Entire ZIP files interrogated for structural integrity.
+- **Raw Audio**: Uncompressed wav files for acoustic fingerprinting.
 
 ```mermaid
 graph LR
-    User([User]) -->|Upload Media| App[Proofy Frontend]
-    App -->|Secure SDK Call| AI[Gemini Neural Engine]
-    AI -->|Temporal/Acoustic Analysis| Logic{Internal Logic}
+    User([User]) -->|Large Media Upload| App[Proofy Frontend]
+    App -->|Secure SDK Context| AI[Gemini 2.5 Flash]
+    AI -->|Parallel Frame Processing| Logic{Neural Logic}
     Logic -->|Structured JSON| Result[Forensic Dashboard]
-    Result -->|Report| Certificate[ASCII Forensic Certificate]
+    Result -->|Validation| Certificate[Technical Forensic Certificate]
 ```
 
 ---
 
-## 📽 Neural Video Forensic Analysis
+## 📽 Neural Video Forensic Analysis (Deep Dive)
 
-Proofy performs a **Frame-by-Frame Temporal Interrogation** of video files. Unlike simple pixel-scanning, Proofy analyzes the **motion logic** and **temporal consistency** of the media.
+Proofy does not simply "look" at pixels; it performs a **Frame-by-Frame Temporal Interrogation**. It is designed to distinguish between **Real-World Noise** (compression artifacts, low light) and **Synthetic Failures** (AI warping).
 
-### **The Video Analysis Flow**
+### **The Technical Interrogation Flow**
 ```mermaid
 sequenceDiagram
     participant U as User
     participant P as Proofy Engine
     participant G as Gemini 2.5 Flash
-    U->>P: Upload Video File
-    P->>G: Provide Media + Forensic Prompt
-    Note over G: Frame-by-Frame Scanning
-    G->>G: Detect Temporal Glitches (Warping/Morphing)
-    G->>G: Verify Biometric Sync (Lip vs Muscle)
-    G->>G: Check Lighting Physics & Shadows
-    G-->>P: Return Forensic JSON Report
-    P->>U: Display Anomaly Score & Verdict
+    U->>P: Provides High-Res Video
+    P->>G: Injects Forensic System Instructions
+    Note over G: Phase 1: Temporal Consistency
+    G->>G: Scan for "Morphing" or "Flicker" artifacts
+    Note over G: Phase 2: Biometric Sync
+    G->>G: Verify Lip Movement vs Facial Micro-muscles
+    Note over G: Phase 3: Physics & Lighting
+    G->>G: Audit Shadow Casting & Reflection Logic
+    G-->>P: Generate 4-Pillar JSON Report
+    P->>U: Display Heatmap & Scoring
 ```
 
-### **Technical Indicators**
-- **Temporal Failure Detection**: Identifying "flickering" or "warping" that occurs only for split-seconds in AI motion.
-- **Biometric Calibration**: Checking if lip movements align with micro-muscle activations in the face.
-- **Physics Break Analysis**: Scanning for shadows or reflections that do not follow physical laws.
+### **The Four Pillars of Video Forensics**
+1.  **Integrity**: Distinguishes between standard H.264 compression blocks and AI-generated pixel-bleeding.
+2.  **Consistency**: Analyzes lighting physics across frames to see if shadows move in a physically consistent vector.
+3.  **AI Patterns**: Searches for "Neural Signatures" common in diffusion-based models (warping edges).
+4.  **Temporal Logic**: Verifies that motion follows a continuous path without "teleporting" frames.
 
 ---
 
 ## 🎙 Acoustic Forensic Analysis
 
-For audio media, Proofy specializes in detecting **Artificial Voice Cloning** and **Synthetic Speech (TTS)**.
+For audio, Proofy specializes in detecting **Artificial Voice Cloning** and **Synthetic Speech (TTS)**.
 
-### **The Audio Analysis Flow**
-```mermaid
-graph TD
-    A[Audio Input] --> B[Acoustic Interrogation]
-    B --> C{Signal Logic}
-    C -->|Natural Indicator| D[Breaths, Imperfect Articulation, Room Tone]
-    C -->|Synthetic Indicator| E[Phase Issues, Metallic Tint, Perfect Pitch Alignment]
-    D --> F[Verdict: AUTHENTIC]
-    E --> G[Verdict: SYNTHETIC/CLONED]
-```
+### **Technical Indicators for Audio Verification**
+- **Phase Inconsistency**: Detecting "metallic" tints often found in early-stage voice clones.
+- **Acoustic Fingerprinting**: Real humans have imperfect articulation and varied room tone; AI often has "perfectly consistent" pitch.
+- **Natural Respiration**: Scanning for natural breath patterns which are often missing or "floating" in synthetic audio.
 
 ---
 
-## 🚀 Key Features
+## 🗞 Truth Interrogator (Text & Claims)
 
-### 🔍 Media Forensics
-- **Deepfake Detection**: High-accuracy scanning for neural synthesis.
-- **Manipulation Mapping**: Identifying exactly *where* and *when* a video was likely altered.
+The Truth Interrogator goes beyond simple sentiment analysis; it acts as a **Digital Fact-Checker**.
 
-### 🗞 Truth Interrogator (Text)
-- **AI Text Detection**: Forensic linguistic analysis to detect LLM-generated patterns.
-- **Grounded Fact-Checking**: Verification of claims using live Google Search grounding.
-
-### 📦 ZIP Archive Architect
-- **Structural Analysis**: Deep-scan of project folders to identify technologies and potential security risks.
-
-### 🤖 Forensic Assistant
-- **Evidence Interrogation**: Use the integrated assistant to ask technical questions about analysis results or forensic concepts.
+- **AI Content Detection**: Analyzes linguistic markers, perplexity, and burstiness to detect text generated by Large Language Models.
+- **Grounded Fact-Checking**: Performs multiple "Search Queries" in the background to verify claims against live, reputable sources.
+- **Source Verification**: Provides a list of verified URLs for every factual claim made in the text.
 
 ---
 
-## 🛠 Tech Stack
-- **Engine**: Gemini 2.5 Flash (Neural Pro Model)
-- **Frontend**: Vite + React 19 + Framer Motion
-- **Visuals**: Three.js (Neural Network Backgrounds)
-- **Deployment**: Vercel (Edge-Optimized)
+## 📦 ZIP Archive Architect
+
+Analyze the skeleton of a software project in seconds. 
+- **Stack Discovery**: Tells you exactly what technologies a project is built with.
+- **Structural Audit**: Scans for "Red Flag" structures (unprotected keys, missing files, suspicious scripts).
+- **Security Mapping**: Provides actionable security notes based on the project's file hierarchy.
 
 ---
 
-## ⚙️ Setup
+## 🛠 Advanced Tech Stack
 
-To run Proofy locally, set your API key in a `.env` file:
+| Technology | Role | Version |
+| :--- | :--- | :--- |
+| **react** | UI Framework (High Performance) | `^19.2.4` |
+| **@google/genai** | Direct Neural SDK Integration | `^1.40.0` |
+| **framer-motion** | Smooth Dashboard Micro-animations | `11.11.17` |
+| **three.js** | Neural Network Background Visuals | `0.170.0` |
+| **lucide-react** | Clean Forensic Iconography | `0.460.0` |
+| **Vite** | Blazing Fast Build Tooling | `^7.3.1` |
 
-```sh
+---
+
+## ⚙️ Setup & Deployment
+
+### **1. Environment Configuration**
+Create a `.env` file in the root directory:
+```bash
 VITE_API_KEY=your_gemini_api_key_here
 ```
 
-### Installation
+### **2. Installation & Run**
 ```bash
 npm install
 npm run dev
 ```
 
+### **3. Vercel Hosting**
+Proofy is pre-configured for Vercel. Simply push to your repository and ensure your `VITE_API_KEY` is added to the Environment Variables in your Vercel project settings.
+
 ---
 
-## 📄 License
-Forensic Grade Security Protocol. Professional use only.
+## 📄 License & Safety
+Proofy is a technical-grade tool. It is designed to **minimize false positives** by biasing towards "REAL" verdicts unless undeniable temporal or acoustic evidence of AI manipulation is detected.
+
+> [!IMPORTANT]
+> Use this tool as a supplement to professional human forensics. AI detection is a probabilistic science.
