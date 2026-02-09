@@ -1,6 +1,12 @@
 import { ZipFileEntry, ZipAnalysis } from "../types";
 
 export async function analyzeZipStructure(files: ZipFileEntry[]): Promise<ZipAnalysis> {
+  // Rough estimate of file list size
+  const roughSize = JSON.stringify(files).length;
+  if (roughSize > 4 * 1024 * 1024) {
+    throw new Error("FILE_TOO_LARGE: The list of files in the ZIP is too large to analyze.");
+  }
+
   try {
     const response = await fetch('/api/zip', {
       method: 'POST',

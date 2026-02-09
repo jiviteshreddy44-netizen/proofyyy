@@ -28,8 +28,23 @@ const safeInvoke = async (model: string, contents: any, config: any = {}) => {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Backend failed');
+    if (response.status === 413) {
+      throw new Error("FILE_TOO_LARGE: The file is too large for the forensic engine. Please use a smaller clip or a lower resolution (max ~4MB).");
+    }
+
+    let errorMsg = 'Backend failed';
+    try {
+      const errorData = await response.json();
+      errorMsg = errorData.error || errorMsg;
+    } catch (e) {
+      // Handle cases where the server returns plain text instead of JSON
+      const text = await response.text();
+      if (text.includes("Request Entity Too Large")) {
+        throw new Error("FILE_TOO_LARGE: The file is too large (max ~4MB after encryption).");
+      }
+      errorMsg = text || errorMsg;
+    }
+    throw new Error(errorMsg);
   }
 
   return await response.json();
@@ -70,6 +85,12 @@ export const reverseSignalGrounding = async (file: File): Promise<any> => {
 };
 
 export const analyzeMedia = async (file: File, metadata: any): Promise<AnalysisResult> => {
+  // Vercel has a 4.5MB payload limit. 
+  // Base64 encoding adds ~33% overhead, so a 3.2MB file becomes ~4.3MB.
+  if (file.size > 3.8 * 1024 * 1024) {
+    throw new Error("FILE_TOO_LARGE: This file is too large to process. Please upload a clip under 4MB.");
+  }
+
   const base64Data = await new Promise<string>((resolve) => {
     const reader = new FileReader();
     reader.onload = () => resolve((reader.result as string).split(',')[1]);
