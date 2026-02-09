@@ -70,6 +70,13 @@ sequenceDiagram
 3.  **AI Patterns**: Searches for "Neural Signatures" common in diffusion-based models (warping edges).
 4.  **Temporal Logic**: Verifies that motion follows a continuous path without "teleporting" frames.
 
+### **Advanced Forensic Indicators**
+Proofy scans for a series of high-level forensic markers:
+- **Lighting & Shadow Entropy**: Detects if shadows align with the primary light source or if they exhibit "impossible" diffusion found in AI renders.
+- **Facial Warping (Mesh Integrity)**: Scans the underlying "neural mesh" of a face for split-second warping or deforming.
+- **Motion Anomaly Detection**: Identifies "floating" objects or physics-defying movement vectors.
+- **Temporal Artifacting**: Hunting for the "pulse" of AI generation—periodic flickering that real cameras don't produce.
+
 ---
 
 ## 🎙 Acoustic Forensic Analysis
