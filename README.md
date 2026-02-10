@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icons/icon128.png" alt="Proofy" width="100"/>
+  <img src="icon128.png" alt="Proofy" width="100"/>
 </p>
 
 <h1 align="center">Proofy</h1>
