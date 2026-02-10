@@ -58,8 +58,7 @@ export const safeInvoke = async (primaryModel: string, contents: any, config: an
             });
 
             // Extract response text safely
-            const response = await result.response;
-            return { response: response.text(), isSafeMode: false };
+            return { response: result.text || "", isSafeMode: false };
         } catch (err: any) {
             const errorMsg = err.message || JSON.stringify(err);
 
@@ -84,8 +83,7 @@ export const safeInvoke = async (primaryModel: string, contents: any, config: an
                     contents,
                     config
                 });
-                const response = await result.response;
-                return { response: response.text(), isSafeMode: true };
+                return { response: result.text || "", isSafeMode: true };
             }
             throw err;
         }
